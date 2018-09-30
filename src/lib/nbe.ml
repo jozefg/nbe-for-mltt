@@ -151,6 +151,7 @@ and read_back_tp size d =
     let var = mk_var fst size in
     Syn.Sig (read_back_tp size fst, read_back_tp (size + 1) (do_clos snd var))
   | D.Uni k -> Syn.Uni k
+  | D.Neutral {term; _} -> read_back_ne size term
   | _ -> raise (Nbe_failed "Not a type in read_back_tp")
 
 and read_back_ne size ne =
