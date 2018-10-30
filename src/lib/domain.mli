@@ -3,9 +3,6 @@ and clos =
     Clos of {term : Syntax.t; env : env}
   | ConstClos of t
 and clos2 = Clos2 of {term : Syntax.t; env : env}
-and tick_clos =
-    TickClos of {term : Syntax.t; env : env}
-  | ConstTickClos of t
 and t =
   | Lam of clos
   | Neutral of {tp : t; term : ne}

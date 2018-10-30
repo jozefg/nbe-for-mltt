@@ -17,9 +17,9 @@ let input_file =
   Arg.(value & pos 0 file "" & info [] ~docv:"input file" ~doc)
 
 let info =
-  let doc = "Typecheck and Normalize a term in Guarded Martin-Lof Type Theory" in
+  let doc = "Typecheck and Normalize a term in Martin-Lof Type Theory" in
   let err_exit = Term.exit_info ~doc:"on an ill-formed or terms." 1 in
-  Term.info "blott" ~version:"0.0" ~doc ~exits:(err_exit :: Term.default_exits)
+  Term.info "mltt" ~version:"0.0" ~doc ~exits:(err_exit :: Term.default_exits)
 
 let () =
   let t = Term.(const main $ input_file) in

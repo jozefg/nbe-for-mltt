@@ -92,7 +92,6 @@ let rec read_back_nf size nf =
   | D.Normal {tp = D.Nat; term = D.Suc nf} ->
     Syn.Suc (read_back_nf size (D.Normal {tp = D.Nat; term = nf}))
   | D.Normal {tp = D.Nat; term = D.Neutral {term = ne; _}} -> read_back_ne size ne
-  (* Later *)
   (* Types *)
   | D.Normal {tp = D.Uni _; term = D.Nat} -> Syn.Nat
   | D.Normal {tp = D.Uni i; term = D.Pi (src, dest)} ->
