@@ -1,4 +1,4 @@
-## nbe-for-mltt explained
+## nbe.ml explained
 
 The goal of this document is to give an explanation of `src/lib/nbe.ml`.
 

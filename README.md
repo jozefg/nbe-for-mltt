@@ -33,7 +33,7 @@ A list of other examples may be found in `test/`.
 
 The algorithm for normalization is heavily based on the description provided in "Normalization by
 Evaluation Dependent Types and Impredicativity" by Andreas Abel. The type checker is loosely based
-on "lA simple type-theoretic language: Mini-TT" by Thierry Coquand, Yoshiki Kinoshita, Bengt
+on "A simple type-theoretic language: Mini-TT" by Thierry Coquand, Yoshiki Kinoshita, Bengt
 Nordström, and Makoto Takeyama.
 
 Once built, the executable `mltt` may be used to normalize programs.  Simply feed it a file
