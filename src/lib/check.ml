@@ -87,6 +87,10 @@ let rec check ~env ~size ~term ~tp =
 and synth ~env ~size ~term =
   match term with
   | Syn.Var i -> get_var env i
+  | Syn.Let (def, body) ->
+    let def_tp = synth ~env ~size ~term:def in
+    let def_val = Nbe.eval def (env_to_sem_env env) in
+    synth ~env:(add_term ~term:def_val ~tp:def_tp env) ~size:(size + 1) ~term:body
   | Check (term, tp') ->
     let tp = Nbe.eval tp' (env_to_sem_env env) in
     check ~env ~size ~term ~tp;
