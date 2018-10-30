@@ -29,8 +29,6 @@ let env_to_sem_env =
       | TopLevel {term; _} -> term
       | Term {term; _} -> term)
 
-module S = Set.Make(struct type t = int;; let compare = compare end)
-
 let get_var env n = match List.nth env n with
   | Term {term = _; tp} -> tp
   | TopLevel {tp; _} -> tp
