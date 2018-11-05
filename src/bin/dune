@@ -1,8 +1,8 @@
 (executables
  (names main)
- (libraries nbe_lib sexplib cmdliner))
+ (libraries normalize_lib cmdliner))
 
 (install
  (section bin)
- (package nbe)
- (files (main.exe as nbe)))
+ (package mltt)
+ (files (main.exe as mltt)))

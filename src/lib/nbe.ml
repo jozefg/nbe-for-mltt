@@ -1,44 +1,8 @@
-module Syn =
-struct
-  type uni_level = int
-  type t =
-    | Var of int (* DeBruijn indices for variables *)
-    | Nat | Zero | Suc of t | NRec of (* BINDS *) t * t * (* BINDS 2 *) t * t
-    | Pi of t * (* BINDS *) t | Lam of (* BINDS *) t | Ap of t * t
-    | Sig of t * (* BINDS *) t | Pair of t * t | Fst of t | Snd of t
-    | Uni of uni_level
+module Syn = Syntax
 
-  type env = t list
-end
-
-module D =
-struct
-  type env = t list
-  and clos = Clos of {term : Syn.t; env : env}
-  and clos2 = Clos2 of {term : Syn.t; env : env}
-  and t =
-    | Lam of clos
-    | Neutral of {tp : t; term : ne}
-    | Nat
-    | Zero
-    | Suc of t
-    | Pi of t * clos
-    | Sig of t * clos
-    | Pair of t * t
-    | Uni of Syn.uni_level
-  and ne =
-    | Var of int (* DeBruijn levels for variables *)
-    | Ap of ne * nf
-    | Fst of ne
-    | Snd of ne
-    | NRec of clos * nf * clos2 * ne
-  and nf =
-    | Normal of {tp : t; term : t}
-end
+module D = Domain
 
 exception Nbe_failed of string
-
-let mk_var tp lev = D.Neutral {tp; term = D.Var lev}
 
 let rec do_rec tp zero suc n =
   match n with
@@ -46,8 +10,7 @@ let rec do_rec tp zero suc n =
   | D.Suc n -> do_clos2 suc n (do_rec tp zero suc n)
   | D.Neutral {term = e; _} ->
     let final_tp = do_clos tp n in
-    let zero' = D.Normal {tp = do_clos tp D.Zero; term = zero} in
-    D.Neutral {tp = final_tp; term = D.NRec (tp, zero', suc, e)}
+    D.Neutral {tp = final_tp; term = D.NRec (tp, zero, suc, e)}
   | _ -> raise (Nbe_failed "Not a number")
 
 and do_fst p =
@@ -65,7 +28,10 @@ and do_snd p =
     D.Neutral {tp = do_clos clo fst; term = D.Snd ne}
   | _ -> raise (Nbe_failed "Couldn't snd argument in do_snd")
 
-and do_clos (Clos {term; env}) a = eval term (a :: env)
+and do_clos clo a =
+  match clo with
+  | Clos {term; env} -> eval term (a :: env)
+  | ConstClos t -> t
 
 and do_clos2 (Clos2 {term; env}) a1 a2 = eval term (a2 :: a1 :: env)
 
@@ -82,9 +48,11 @@ and do_ap f a =
     end
   | _ -> raise (Nbe_failed "Not a function in do_ap")
 
-and eval t env =
+and eval t (env : D.env) =
   match t with
   | Syn.Var i -> List.nth env i
+  | Syn.Let (def, body) -> eval body (eval def env :: env)
+  | Syn.Check (term, _) -> eval term env
   | Syn.Nat -> D.Nat
   | Syn.Zero -> D.Zero
   | Syn.Suc t -> D.Suc (eval t env)
@@ -108,7 +76,7 @@ let rec read_back_nf size nf =
   match nf with
   (* Functions *)
   | D.Normal {tp = D.Pi (src, dest); term = f} ->
-    let arg = mk_var src size in
+    let arg = D.mk_var src size in
     let nf = D.Normal {tp = do_clos dest arg; term = do_ap f arg} in
     Syn.Lam (read_back_nf (size + 1) nf)
   (* Pairs *)
@@ -127,31 +95,31 @@ let rec read_back_nf size nf =
   (* Types *)
   | D.Normal {tp = D.Uni _; term = D.Nat} -> Syn.Nat
   | D.Normal {tp = D.Uni i; term = D.Pi (src, dest)} ->
-    let var = mk_var src size in
+    let var = D.mk_var src size in
     Syn.Pi
       (read_back_nf size (D.Normal {tp = D.Uni i; term = src}),
        read_back_nf (size + 1) (D.Normal {tp = D.Uni i; term = do_clos dest var}))
   | D.Normal {tp = D.Uni i; term = D.Sig (fst, snd)} ->
-    let var = mk_var fst size in
+    let var = D.mk_var fst size in
     Syn.Sig
       (read_back_nf size (D.Normal {tp = D.Uni i; term = fst}),
        read_back_nf (size + 1) (D.Normal {tp = D.Uni i; term = do_clos snd var}))
-  | D.Normal {tp = D.Uni i; term = D.Uni j} when i > j -> Syn.Uni j
+  | D.Normal {tp = D.Uni _; term = D.Uni j} -> Syn.Uni j
   | D.Normal {tp = D.Uni _; term = D.Neutral {term = ne; _}} -> read_back_ne size ne
   | D.Normal {tp = D.Neutral _; term = D.Neutral {term = ne; _}} -> read_back_ne size ne
   | _ -> raise (Nbe_failed "Ill-typed read_back_nf")
 
 and read_back_tp size d =
   match d with
+  | D.Neutral {term; _} -> read_back_ne size term
   | D.Nat -> Syn.Nat
   | D.Pi (src, dest) ->
-    let var = mk_var src size in
+    let var = D.mk_var src size in
     Syn.Pi (read_back_tp size src, read_back_tp (size + 1) (do_clos dest var))
   | D.Sig (fst, snd) ->
-    let var = mk_var fst size in
+    let var = D.mk_var fst size in
     Syn.Sig (read_back_tp size fst, read_back_tp (size + 1) (do_clos snd var))
   | D.Uni k -> Syn.Uni k
-  | D.Neutral {term; _} -> read_back_ne size term
   | _ -> raise (Nbe_failed "Not a type in read_back_tp")
 
 and read_back_ne size ne =
@@ -160,17 +128,38 @@ and read_back_ne size ne =
   | D.Ap (ne, arg) ->
     Syn.Ap (read_back_ne size ne, read_back_nf size arg)
   | D.NRec (tp, zero, suc, n) ->
-    let tp_var = mk_var D.Nat size in
+    let tp_var = D.mk_var D.Nat size in
     let applied_tp = do_clos tp tp_var in
+    let zero_tp = do_clos tp D.Zero in
     let applied_suc_tp = do_clos tp (D.Suc tp_var) in
     let tp' = read_back_tp (size + 1) applied_tp in
-    let suc_var = mk_var applied_tp (size + 1) in
+    let suc_var = D.mk_var applied_tp (size + 1) in
     let applied_suc = do_clos2 suc tp_var suc_var in
     let suc' =
       read_back_nf (size + 2) (D.Normal {tp = applied_suc_tp; term = applied_suc}) in
-    Syn.NRec (tp', read_back_nf size zero, suc', read_back_ne size n)
+    Syn.NRec
+      (tp',
+       read_back_nf size (D.Normal {tp = zero_tp; term = zero}),
+       suc',
+       read_back_ne size n)
   | D.Fst ne -> Syn.Fst (read_back_ne size ne)
   | D.Snd ne -> Syn.Snd (read_back_ne size ne)
+
+let rec check_subtype size d1 d2 =
+  match d1, d2 with
+  | D.Neutral {term = term1; _}, D.Neutral {term = term2; _} ->
+    read_back_ne size term1 = read_back_ne size term2
+  | D.Nat, D.Nat -> true
+  | D.Pi (src, dest), D.Pi (src', dest') ->
+    let var = D.mk_var src' size in
+    check_subtype size src' src &&
+    check_subtype (size + 1) (do_clos dest var) (do_clos dest' var)
+  | D.Sig (fst, snd), D.Sig (fst', snd') ->
+    let var = D.mk_var fst size in
+    check_subtype size fst fst' &&
+    check_subtype (size + 1) (do_clos snd var) (do_clos snd' var)
+  | D.Uni k, D.Uni j -> k <= j
+  | _ -> false
 
 let rec initial_env env =
   match env with
