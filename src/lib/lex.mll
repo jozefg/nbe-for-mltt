@@ -52,6 +52,10 @@ rule token = parse
     { LPR }
   | ')'
     { RPR }
+  | '['
+    { LBR }
+  | ']'
+    { RBR }
   | '|'
     { PIPE }
   | ','

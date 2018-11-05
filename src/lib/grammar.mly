@@ -5,10 +5,10 @@
 %token <int> NUMERAL
 %token <string> ATOM
 %token COLON PIPE AT COMMA RIGHT_ARROW UNDERSCORE
-%token LPR RPR LANGLE RANGLE
+%token LPR RPR LBR RBR LANGLE RANGLE
 %token EQUALS
 %token TIMES FST SND
-%token LAM LET IN END WITH DEF
+%token LAM LET IN WITH DEF
 %token REC SUC NAT ZERO
 %token UNIV
 %token QUIT NORMALIZE
@@ -38,7 +38,7 @@ sign:
 atomic:
   | LPR; t = term; RPR
     { t }
-  | LPR; t = term; COLON; tp = term RPR
+  | LBR; t = term; AT; tp = term RBR
     { Check {term = t; tp} }
   | a = name
     { Var a }
@@ -60,7 +60,7 @@ term:
     { Ap (f, args) }
   | LET; name = name; COLON; tp = term; EQUALS; def = term; IN; body = term
     { Let (Check {term = def; tp}, Binder {name; body}) }
-  | LET; name = name; EQUALS; def = term; IN; body = term; END
+  | LET; name = name; EQUALS; def = term; IN; body = term
     { Let (def, Binder {name; body}) }
   | LPR t = term; AT; tp = term RPR
     { Check {term = t; tp} }

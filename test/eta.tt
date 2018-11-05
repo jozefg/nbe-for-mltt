@@ -7,3 +7,5 @@ let idpair : (A : U<0>) -> (B : U<0>) -> (A * B) -> (A * B) =
   fun A -> fun B -> fun x -> x
 
 normalize def idpair
+
+normalize (fun A -> fun x -> x) at (A : U<0>) -> A -> A
