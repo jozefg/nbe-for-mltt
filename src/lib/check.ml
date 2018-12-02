@@ -34,7 +34,7 @@ let get_var env n = match List.nth env n with
   | TopLevel {tp; _} -> tp
 
 let assert_subtype size t1 t2 =
-  if Nbe.check_subtype size t1 t2
+  if Nbe.check_tp size t1 t2
   then ()
   else tp_error (Type_mismatch (t1, t2))
 
