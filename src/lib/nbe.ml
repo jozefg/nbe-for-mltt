@@ -28,10 +28,7 @@ and do_snd p =
     D.Neutral {tp = do_clos clo fst; term = D.Snd ne}
   | _ -> raise (Nbe_failed "Couldn't snd argument in do_snd")
 
-and do_clos clo a =
-  match clo with
-  | Clos {term; env} -> eval term (a :: env)
-  | ConstClos t -> t
+and do_clos (Clos {term; env}) a = eval term (a :: env)
 
 and do_clos2 (Clos2 {term; env}) a1 a2 = eval term (a2 :: a1 :: env)
 

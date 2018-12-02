@@ -1,9 +1,7 @@
 open Sexplib
 
 type env = t list
-and clos =
-    Clos of {term : Syntax.t; env : env}
-  | ConstClos of t
+and clos = Clos of {term : Syntax.t; env : env}
 and clos2 = Clos2 of {term : Syntax.t; env : env}
 and t =
   | Lam of clos
@@ -63,7 +61,6 @@ let rec go_to_sexp size env = function
   | Neutral {tp; term} -> Sexp.List [Sexp.Atom "up"; go_to_sexp size env tp; go_to_sexp_ne size env term]
 
 and go_to_sexp_clos size env = function
-  | ConstClos t -> Sexp.List [Sexp.Atom "_"; go_to_sexp size env t]
   | Clos body ->
     let var = Sexp.Atom ("x" ^ string_of_int size) in
     let new_env = var :: List.map (go_to_sexp size env) body.env |> List.rev in
