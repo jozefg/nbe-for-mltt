@@ -8,10 +8,11 @@ val eval : Syntax.t -> Domain.env -> Domain.t
 
 val read_back_nf : int -> Domain.nf -> Syntax.t
 
-(* Check whether a semantic type is a subtype of another *)
+(* Check whether a semantic element is equal to another *)
 val check_nf : int -> Domain.nf -> Domain.nf -> bool
 val check_ne : int -> Domain.ne -> Domain.ne -> bool
-val check_tp : int -> Domain.t -> Domain.t -> bool
+(* If subtype = true then we check whether the first argument is a subtype of the latter *)
+val check_tp : subtype:bool -> int -> Domain.t -> Domain.t -> bool
 
 (* Functions to manipulate elements of the semantic domain *)
 val do_clos : Domain.clos -> Domain.t -> Domain.t

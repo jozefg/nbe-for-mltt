@@ -187,7 +187,7 @@ let rec check_nf size nf1 nf2 =
     && check_nf (size + 1) (D.Normal {tp = D.Uni i; term = do_clos dest1 var})
       (D.Normal {tp = D.Uni j; term = do_clos dest2 var})
   | D.Normal {tp = D.Uni _; term = D.Uni j},
-    D.Normal {tp = D.Uni _; term = D.Uni j'} -> j <= j'
+    D.Normal {tp = D.Uni _; term = D.Uni j'} -> j = j'
   | D.Normal {tp = D.Uni _; term = D.Neutral {term = ne1; _}},
     D.Normal {tp = D.Uni _; term = D.Neutral {term = ne2; _}} -> check_ne size ne1 ne2
   | D.Normal {tp = D.Neutral _; term = D.Neutral {term = ne1; _}},
@@ -208,27 +208,28 @@ and check_ne size ne1 ne2 =
     let suc_var2 = D.mk_var applied_tp2 (size + 1) in
     let applied_suc1 = do_clos2 suc1 tp_var suc_var1 in
     let applied_suc2 = do_clos2 suc2 tp_var suc_var2 in
-    check_tp (size + 1) applied_tp1 applied_tp2
+    check_tp ~subtype:false (size + 1) applied_tp1 applied_tp2
     && check_nf size (D.Normal {tp = zero_tp; term = zero1}) (D.Normal {tp = zero_tp; term = zero2})
-    && check_nf (size + 2) (D.Normal {tp = applied_suc_tp; term = applied_suc1}) (D.Normal {tp = applied_suc_tp; term = applied_suc2})
+    && check_nf (size + 2) (D.Normal {tp = applied_suc_tp; term = applied_suc1})
+      (D.Normal {tp = applied_suc_tp; term = applied_suc2})
     && check_ne size n1 n2
   | D.Fst ne1, D.Fst ne2  -> check_ne size ne1 ne2
   | D.Snd ne1, D.Snd ne2 -> check_ne size ne1 ne2
   | _ -> false
 
-and check_tp size d1 d2 =
+and check_tp ~subtype size d1 d2 =
   match d1, d2 with
   | D.Neutral {term = term1; _}, D.Neutral {term = term2; _} ->
     check_ne size term1 term2
   | D.Nat, D.Nat -> true
   | D.Pi (src, dest), D.Pi (src', dest') ->
     let var = D.mk_var src' size in
-    check_tp size src' src &&
-    check_tp (size + 1) (do_clos dest var) (do_clos dest' var)
+    check_tp ~subtype size src' src &&
+    check_tp ~subtype (size + 1) (do_clos dest var) (do_clos dest' var)
   | D.Sig (fst, snd), D.Sig (fst', snd') ->
     let var = D.mk_var fst size in
-    check_tp size fst fst' &&
-    check_tp (size + 1) (do_clos snd var) (do_clos snd' var)
+    check_tp ~subtype size fst fst' &&
+    check_tp ~subtype (size + 1) (do_clos snd var) (do_clos snd' var)
   | D.Uni k, D.Uni j -> k <= j
   | _ -> false
 
