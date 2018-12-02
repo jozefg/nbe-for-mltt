@@ -36,8 +36,5 @@ Evaluation Dependent Types and Impredicativity" by Andreas Abel. The type checke
 on "A simple type-theoretic language: Mini-TT" by Thierry Coquand, Yoshiki Kinoshita, Bengt
 Nordström, and Makoto Takeyama.
 
-Once built, the executable `mltt` may be used to normalize programs.  Simply feed it a file
-containing two sexprs, a term and a type.
-
 An explanation of the algorithm may be found in `nbe-explanation.md`. An explanation of the type
 checker may be found (eventually) in `check-explanation.md`.
