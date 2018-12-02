@@ -230,7 +230,7 @@ and check_tp ~subtype size d1 d2 =
     let var = D.mk_var fst size in
     check_tp ~subtype size fst fst' &&
     check_tp ~subtype (size + 1) (do_clos snd var) (do_clos snd' var)
-  | D.Uni k, D.Uni j -> k <= j
+  | D.Uni k, D.Uni j -> if subtype then k <= j else k = j
   | _ -> false
 
 let rec initial_env env =
