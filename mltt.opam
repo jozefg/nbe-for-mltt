@@ -1,6 +1,7 @@
 opam-version: "2.0"
 name: "mltt"
 version: "0.0"
+synopsis: "An implementation of Martin-Lof type theory"
 maintainer: "danny.gratzer@gmail.com"
 authors: ["Daniel Gratzer"]
 homepage: "https://github.com/jozefg/nbe-for-mltt"

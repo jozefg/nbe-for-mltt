@@ -3,6 +3,7 @@ name: "normalize_lib"
 version: "0.0"
 maintainer: "Daniel Gratzer"
 authors: ["Daniel Gratzer"]
+synopsis: "An implementation of Martin-Lof type theory"
 homepage: "https://github.com/jozefg/nbe-for-mltt"
 bug-reports: "https://github.com/jozefg/nbe-for-mltt/issues"
 license: "MIT"
