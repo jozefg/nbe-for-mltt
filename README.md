@@ -38,3 +38,10 @@ Nordström, and Makoto Takeyama.
 
 An explanation of the algorithm may be found in `nbe-explanation.md`. An explanation of the type
 checker may be found (eventually) in `check-explanation.md`.
+
+Compiling the code: 
+  install missing libraries as such:
+    'opam install cmdliner menhir sexplib'
+  and then run 'make all'
+  
+Now the code can be run using 'dune exec -- mltt test/somefile.tt'
