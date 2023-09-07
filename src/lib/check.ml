@@ -51,10 +51,17 @@ let rec check ~env ~size ~term ~tp =
       | t -> tp_error (Expecting_universe t)
     end
   | Pi (l, r) | Sig (l, r) ->
-    check ~env ~size ~term:l ~tp;
-    let l_sem = Nbe.eval l (env_to_sem_env env) in
-    let var = D.mk_var l_sem size in
-    check ~env:(add_term ~term:var ~tp:l_sem env) ~size ~term:r ~tp
+    begin
+      match tp with
+      | D.Uni _ ->
+        begin
+          check ~env ~size ~term:l ~tp;
+          let l_sem = Nbe.eval l (env_to_sem_env env) in
+          let var = D.mk_var l_sem size in
+          check ~env:(add_term ~term:var ~tp:l_sem env) ~size ~term:r ~tp
+        end
+      | _ -> tp_error (Expecting_universe tp)
+    end
   | Lam body ->
     begin
       match tp with
