@@ -99,6 +99,7 @@ and synth ~env ~size ~term =
     let def_val = Nbe.eval def (env_to_sem_env env) in
     synth ~env:(add_term ~term:def_val ~tp:def_tp env) ~size:(size + 1) ~term:body
   | Check (term, tp') ->
+    check_tp ~env ~size ~term:tp';
     let tp = Nbe.eval tp' (env_to_sem_env env) in
     check ~env ~size ~term ~tp;
     tp
