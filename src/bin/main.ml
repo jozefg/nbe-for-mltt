@@ -18,9 +18,8 @@ let input_file =
 
 let info =
   let doc = "Typecheck and Normalize a term in Martin-Lof Type Theory" in
-  let err_exit = Term.exit_info ~doc:"on an ill-formed or terms." 1 in
-  Term.info "mltt" ~version:"0.0" ~doc ~exits:(err_exit :: Term.default_exits)
+  Cmd.info "mltt" ~version:"0.0" ~doc
 
 let () =
   let t = Term.(const main $ input_file) in
-  Term.exit_status @@ Term.eval (t, info)
+  exit @@ Cmd.eval' @@ Cmd.v info t

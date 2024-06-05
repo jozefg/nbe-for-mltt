@@ -1,5 +1,4 @@
 (menhir
- (flags --explain --interpret-show-cst --table)
  (modules grammar))
 
 (ocamllex lex)

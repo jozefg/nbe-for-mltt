@@ -10,9 +10,20 @@ dev-repo: "git+https://github.com/jozefg/nbe-for-mltt.git"
 license: "MIT"
 depends: [
   "dune"  {build}
-  "cmdliner" {= "1.0.2"}
-  "sexplib" {>= "0.11.0"}
+  "cmdliner" {>= "1.3"}
+  "sexplib" {>= "0.16.0"}
 ]
 build: [
-  [make]
+  ["dune" "subst"] {dev}
+  [
+    "dune"
+    "build"
+    "-p"
+    name
+    "-j"
+    jobs
+    "@install"
+    "@runtest" {with-test}
+    "@doc" {with-doc}
+  ]
 ]
