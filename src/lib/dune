@@ -7,4 +7,4 @@
  (name Normalizer)
  (libraries sexplib menhirLib)
  (flags (:standard -w -9-32-37))
- (public_name normalize_lib))
+ (public_name mltt.normalize_lib))
